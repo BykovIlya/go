@@ -38,4 +38,7 @@ func main() {
 	eventsJson, _ := json.Marshal(events)
 	fmt.Println(string(eventsJson))
 
+
+
+	
 }
