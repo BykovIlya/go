@@ -269,7 +269,7 @@ func main() {
 	csvFile, _ := os.Open("events.csv")
 	reader := csv.NewReader(bufio.NewReader(csvFile))
 	var events []*Events
-	for  i := 0; i < 1000000; i++ {
+	for {
 		line, error := reader.Read()
 		if error == io.EOF {
 			break
@@ -520,11 +520,8 @@ func main() {
 	fmt.Println()
 */
 //	foo()
-	for i := 0; i < len(arrayOfSales); i++ {
-		if arrayOfSales[i] == 0 {
-			arrayOfSales[i] = 1
-		}
-	}
+
+	//fmt.Println(cntBuf)
 	n_factors := 1
 	n_iterations := 1
 	lambda := 0.1
