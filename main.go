@@ -1,14 +1,16 @@
 package main
 
 import (
-	"encoding/csv"
 	"bufio"
-	"io"
-	"log"
 	"os"
-	"sort"
 	"fmt"
 	"math"
+
+	"goRecommend/ALS"
+	"encoding/csv"
+	"io"
+	"log"
+	"sort"
 )
 
 
@@ -262,11 +264,12 @@ func optimizeScores(scores [] float64, good [] float64) []float64{
  main function
  */
 func main() {
+
 //	csvFile, _ := os.Open("events_example.csv")
 	csvFile, _ := os.Open("events.csv")
 	reader := csv.NewReader(bufio.NewReader(csvFile))
 	var events []*Events
-	for {
+	for  i := 0; i < 1000000; i++ {
 		line, error := reader.Read()
 		if error == io.EOF {
 			break
@@ -282,6 +285,7 @@ func main() {
 			//	transactionid: line[4],
 			})
 		}
+
 	}
 	fmt.Println("Number of transactions: ", len(events))
 	// for visitors
@@ -406,7 +410,7 @@ func main() {
 	//prods, scores, err := GetRecommendations(prefs, getIndVisitor(visitors, myVisitor), products)
 	indexOfVisitor := getIndVisitor(visitors, myVisitor)
 	if (indexOfVisitor == -1) {
-		fmt.Println("Ërror: visitor doesn't found!")
+		fmt.Println("Error: visitor doesn't found!")
 		os.Exit(-1)
 	}
 	//t1_0 := time.Now()
@@ -430,6 +434,11 @@ func main() {
 			fmt.Print(scores[i], " ")
 		}
 	}
+	fmt.Println()
+	/*
+		find max count
+	 */
+	 /*
 	var max_count float64
 	for i := 0; i < len(arrayOfSales); i++  {
 		if arrayOfSales[i] > max_count {
@@ -438,10 +447,157 @@ func main() {
 	}
 	fmt.Println(max_count)
 	fmt.Println()
-	//fmt.Println("Algorithm running time : ", t1_1.Sub(t1_0))
-	//fmt.Println(len(prods))
-	//fmt.Println(prods[5])
-	//fmt.Printf("\nRecommended Products are: %v, with scores: %v", prods, scores)
-	//fmt.Println()
+	 */
+
+	 //fmt.Println("Algorithm running time : ", t1_1.Sub(t1_0))
+	/*countNull := 0
+	for i := 0; i < len(arrayOfSales); i++ {
+		if arrayOfSales[i] == 0 {
+			countNull++
+		}
+	}
+	fmt.Println("Nulls: ", countNull, ", Not nulls:", len(arrayOfSales) - countNull, "Not null in percent: ", (float64(len(arrayOfSales) - countNull)/ float64(countNull)) * 100.0, " %")
+	*/
+	/*
+	   for bayesian filter
+	*/
+	/* for i := 0; i < len(arrayOfSales); i++ {
+	 	if arrayOfSales[i] == 0 {
+	 		arrayOfSales[i] = math.NaN()
+		}
+	 }
+	mat := MakeRatingMatrix(arrayOfSales, len(removeDublicatesOfVisitors), len(removeDublicatesOfItems))
+	for i := 0; !os.IsExist(err); i++ {
+		fmt.Print("Choose item: ")
+		var myItem string //= "54058"
+		scannerItem := bufio.NewScanner(os.Stdin)
+		scannerItem.Scan()
+		myItem = scannerItem.Text()
+		indexOfItem := getIndItem(removeDublicatesOfItems, myItem)
+		if (indexOfItem == -1) {
+			fmt.Println("Error: item doesn't found!")
+			os.Exit(-1)
+		}
+		predArray, predictedValue, err:= BayesianFilter(mat, indexOfVisitor, indexOfItem)
+		if err != nil {
+			fmt.Errorf("Error in BayesianFilter: %v", err)
+			os.Exit(-2)
+		}
+		fmt.Println(predictedValue)
+		fmt.Println(predArray)
+	}
+*/
+	/*
+		get binary recommendation
+	 */
+	/*for i := 0; i < len(arrayOfSales); i++ {
+		if arrayOfSales[i] > 0 {
+			arrayOfSales[i] = 1
+		}
+	}*/
+/*
+	binaryPrefs := MakeRatingMatrix(arrayOfSales, len(removeDublicatesOfVisitors), len(removeDublicatesOfItems))
+	binProds, binScores, err := GetBinaryRecommendations(binaryPrefs, getIndVisitor(visitors, myVisitor), products)
+
+	if err != nil {
+		fmt.Println("WHAT!?")
+	}
+	fmt.Printf("\nRecommended Products are: %v, with scores: %v", binProds, binScores)
+/*
+	fmt.Print("Recommended Producs are: ")
+	for i := 0; i < len(binProds); i++  {
+		if binProds[i] != "" {
+			fmt.Print(binProds[i], " ")
+		}
+	}
+	//	fmt.Println(" with scores: ", real_scores)
+	//fmt.Print(" with scores: ", scores[i])
+	for i := 0; i < len(binScores); i++ {
+		if !math.IsNaN(binScores[i]) {
+			fmt.Print(binScores[i], " ")
+		}
+	}
+	fmt.Println()
+*/
+//	foo()
+	for i := 0; i < len(arrayOfSales); i++ {
+		if arrayOfSales[i] == 0 {
+			arrayOfSales[i] = 1
+		}
+	}
+	n_factors := 1
+	n_iterations := 1
+	lambda := 0.1
+	Qhat, _ := ALS.Train(prefs, n_factors, n_iterations, lambda)
+	//fmt.Println(Qhat)
+	for i := 0; !os.IsExist(err); i++ {
+		fmt.Print("Choose item: ")
+		var myItem string //= "54058"
+		scannerItem := bufio.NewScanner(os.Stdin)
+		scannerItem.Scan()
+		myItem = scannerItem.Text()
+		indexOfItem := getIndItem(removeDublicatesOfItems, myItem)
+		if (indexOfItem == -1) {
+			fmt.Println("Error: item doesn't found!")
+			os.Exit(-1)
+		}
+		fmt.Println(ALS.Predict(Qhat, getIndVisitor(visitors, myVisitor), indexOfItem))
+		fmt.Println(ALS.GetTopNRecommendations(prefs, Qhat, getIndVisitor(visitors, myVisitor), 5, products))
+		//R := ALS.TrainImplicit(prefs, 1, 1, 0.1)
+		//fmt.Println(ALS.Predict(R, getIndVisitor(visitors, myVisitor), indexOfItem))
+	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+func main1() {
+	Q := MakeRatingMatrix([]float64{
+		5, 5, 5, 0, 1,4,
+		0, 0, 0, 4, 1,3,
+		1, 2, 3, 3, 1,2,
+		2, 0, 4, 1, 0,1,
+		5, 2, 0, 1, 0,0}, 5, 6)
+
+	// OR load in through a text file
+	// Q := Load("path/to/file", "separator") // where separator can be a comma, tally, tab, etc...
+
+	// Train a model with 5 factors, 10 iterations, and a lambda value of 0.01.
+	// 10 iterations is usually enough to reach convergence, and a lambda val of 0.01 is acceptable.
+	n_factors := 5
+	n_iterations := 10
+	lambda := 0.01
+
+	// Train Model Using Explicit ALS. This means that users rated each product on a scale
+	// where 0 indicates not rated
+	// Prints out the final error value.
+	Qhat, _ := ALS.Train(Q, n_factors, n_iterations, lambda)
+	fmt.Println(Qhat)
+
+	// Get Prediction for a user/product pair.
+	fmt.Println(ALS.Predict(Qhat, 2, 1))
+
+	// Get top - N recommended products based off of Qhat for a given user ID.
+	// Args: Original user/product matrix, trained model, N, product names.
+	// Returns []string of length N & error - if applicable
+	// If Product Names is nil, then returns top indices for each user. Returns in descending order.
+
+	products := []string{"Macy Gray", "The Black Keys", "Spoon", "A Tribe Called Quest", "Kanye West", "asd"}
+	fmt.Println(ALS.GetTopNRecommendations(Q, Qhat, 1, 3, products))
+	// Implicit. Can do 'GetTopNRecommendations' in implicit case too.
+	//0R := ALS.TrainImplicit(Q, 5, 10, 0.01)
+	//fmt.Println(ALS.Predict(R, 1, 1))
+}
