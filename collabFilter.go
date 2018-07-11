@@ -81,20 +81,20 @@ func GetRecommendations(prefs *DenseMatrix, user int, products []string) ([]stri
 	if user >= prefs.Rows() {
 		return nil, nil, errors.New("user index out of range")
 	}
-	prefs = replaceNA(prefs)
+	//prefs = replaceNA(prefs)									// убираем неопределенности
 	// item ratings
 	ratings := make(map[int]float64, 0)
 	sims := make(map[int]float64, 0)
 	// Get user row from prefs matrix
-	user_ratings := prefs.GetRowVector(user).Array()
+	user_ratings := prefs.GetRowVector(user).Array()			// строка - товары пользователя
 	for i := 0; i < prefs.Rows(); i++ {
 		// don't compare row to itself.
 		if i != user {
 			// get cosine similarity for other scores.
-			other := prefs.GetRowVector(i).Array()
-			cos_sim := CosineSim(user_ratings, other)
+			other := prefs.GetRowVector(i).Array()				// other - товары другого пользователя
+			cos_sim := CosineSim(user_ratings, other)			// косинусная мера м-ду векторами [0,1]
 			// get product recs for neighbors
-			for idx, val := range other {
+			for idx, val := range other {						// проходим по товарам
 				if (user_ratings[idx] == 0 || math.IsNaN(user_ratings[idx])) && val != 0 {
 					weighted_rating := val * cos_sim
 					ratings[idx] += weighted_rating
@@ -160,7 +160,6 @@ func calculateWeightedMean(ratings, sims map[int]float64, products []string) (re
 	recommendations := make(map[float64]string, 0)
 	for k, v := range ratings {
 		mean_product_rating := v / sims[k]
-		//fmt.Println(mean_product_rating)
 		if products != nil {
 			recommendations[mean_product_rating] = products[k]
 		} else {

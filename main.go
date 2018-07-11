@@ -2,10 +2,8 @@ package main
 
 import (
 	"os"
-	"bufio"
 	"fmt"
 	"math"
-	"goRecommend/ALS"
 )
 
 func main() {
@@ -45,34 +43,46 @@ func main() {
 	/* CA algorithm*/
 	prefs := MakeRatingMatrix(arrayOfSales, len(removeDublicatesOfVisitors), len(removeDublicatesOfItems))
 	products := removeDublicatesOfItems
-	fmt.Print("Choose visitor: ")
-	var myVisitor string //= "599528"
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	myVisitor = scanner.Text()
-	indexOfVisitor := getIndVisitor(visitors, myVisitor)
-	if (indexOfVisitor == -1) {
-		fmt.Println("Error: visitor doesn't found!")
-		os.Exit(-1)
-	}
-	prods, scores, err := GetRecommendations(prefs, getIndVisitor(visitors, myVisitor), products)
-	if err != nil {
-		fmt.Println("WHAT!?")
-	}
-	fmt.Print("Recommended Producs are: ")
-	for i := 0; i < len(prods); i++  {
-		if prods[i] != "" {
-			fmt.Print(prods[i], " ")
-		}
-	}
-	fmt.Print(" with scores: ")
-	for i := 0; i < len(scores); i++ {
-		if !math.IsNaN(scores[i]) {
-			fmt.Print(scores[i], " ")
-		}
-	}
-	fmt.Println()
 
+	for i := 0; i < /*len(removeDublicatesOfVisitors)*/ 50; i++ {
+		//fmt.Print("Choose visitor: ")
+		//var myVisitor string //= "599528"
+		//scanner := bufio.NewScanner(os.Stdin)
+		//scanner.Scan()
+		//myVisitor = scanner.Text()
+		indexOfVisitor := getIndVisitor(visitors, removeDublicatesOfVisitors[i])
+		if (indexOfVisitor == -1) {
+			fmt.Println("Error: visitor doesn't found!")
+			os.Exit(-1)
+		}
+		prods, scores, err := GetRecommendations(prefs, /*getIndVisitor(visitors, myVisitor)*/ indexOfVisitor, products)
+		if err != nil {
+			fmt.Println("WHAT!?")
+		}
+		//fmt.Print(" Recommended Producs are: ")
+		realProds := make([]string,0)
+		cntOfProds := 0
+		for i := 0; i < len(prods); i++ {
+			if prods[i] != "" {
+				//fmt.Print(prods[i], " ")
+				realProds = append(realProds, prods[i])
+				cntOfProds++
+			}
+		}
+		realScores := make ([]float64, 0)
+		//fmt.Print(" with scores: ")
+		for i := 0; i < len(scores); i++ {
+			if !math.IsNaN(scores[i]) {
+				realScores = append(realScores, scores[i])
+				//fmt.Print(scores[i], " ")
+			}
+		}
+		if cntOfProds > 0 {
+			fmt.Print("For user ", removeDublicatesOfVisitors[i])
+			fmt.Print(" Recommended Producs are: ", realProds, " with scores: ", realScores)
+			fmt.Println()
+		}
+	}
 	/*
 	   for bayesian filter
 	*/
@@ -156,7 +166,7 @@ func main() {
 	*/
 	//	fmt.Println(ALS.Predict(Qhat, getIndVisitor(visitors, myVisitor), indexOfItem))
 	//	fmt.Println(ALS.GetTopNRecommendations(prefs, Qhat, getIndVisitor(visitors, myVisitor), 5, products))
-		for i := 0; i < len(arrayOfSales); i++ {
+	/*	for i := 0; i < len(arrayOfSales); i++ {
 			if (arrayOfSales[i]) > 5 {
 				arrayOfSales[i] = 5
 			}
@@ -174,5 +184,5 @@ func main() {
 				os.Exit(-1)
 			}
 			fmt.Println(ALS.Predict(R, getIndVisitor(visitors, myVisitor), indexOfItem))
-		}
+		}*/
 }
