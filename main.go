@@ -4,6 +4,8 @@ import (
 	"os"
 	"fmt"
 	"math"
+	"bufio"
+	"strconv"
 )
 
 func main() {
@@ -42,15 +44,18 @@ func main() {
 
 	/* CA algorithm*/
 	prefs := MakeRatingMatrix(arrayOfSales, len(removeDublicatesOfVisitors), len(removeDublicatesOfItems))
-	products := removeDublicatesOfItems
-
-	for i := 0; i < /*len(removeDublicatesOfVisitors)*/ 50; i++ {
-		//fmt.Print("Choose visitor: ")
-		//var myVisitor string //= "599528"
-		//scanner := bufio.NewScanner(os.Stdin)
-		//scanner.Scan()
-		//myVisitor = scanner.Text()
-		indexOfVisitor := getIndVisitor(visitors, removeDublicatesOfVisitors[i])
+	//products := removeDublicatesOfItems
+	products := make([]string, 0)
+	for i := 0; i < len(removeDublicatesOfItems); i++ {
+		products = append(products,strconv.Itoa(i))
+	}
+	//for i := 0; i < /*len(removeDublicatesOfVisitors)*/ 2; i++ {
+		fmt.Print("Choose visitor: ")
+		var myVisitor string //= "599528"
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		myVisitor = scanner.Text()
+		indexOfVisitor := getIndVisitor(visitors, myVisitor)
 		if (indexOfVisitor == -1) {
 			fmt.Println("Error: visitor doesn't found!")
 			os.Exit(-1)
@@ -78,11 +83,11 @@ func main() {
 			}
 		}
 		if cntOfProds > 0 {
-			fmt.Print("For user ", removeDublicatesOfVisitors[i])
+			fmt.Print("For user ", myVisitor)
 			fmt.Print(" Recommended Producs are: ", realProds, " with scores: ", realScores)
 			fmt.Println()
 		}
-	}
+	//}
 	/*
 	   for bayesian filter
 	*/
@@ -185,4 +190,9 @@ func main() {
 			}
 			fmt.Println(ALS.Predict(R, getIndVisitor(visitors, myVisitor), indexOfItem))
 		}*/
+}
+
+func main1()  {
+	test1()
+	test2()
 }
