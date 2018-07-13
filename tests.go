@@ -355,6 +355,16 @@ func test4CF () {
 		fmt.Println("WHAT!?")
 	}
 	fmt.Printf("\nRecommended Products are: %v, with scores: %v", prods)
+	//sort.Strings()
+	//buf := make([]string, 0)
+	//for i := 0; i < len(prods); i++ {
+	//	fmt.Print(prods[i].product," ")
+	//	buf = append(buf, prods[i].product)
+	//}
+	/*sort.Strings(buf)
+	fmt.Print(buf)*/
+	fmt.Println()
+	fmt.Println()
 }
 
 func test4ALS () {
@@ -382,5 +392,5 @@ func test4ALS () {
 	for i := 0; i < 1000; i++ {
 		products = append(products, strconv.Itoa(i))
 	}
-	fmt.Println(GetTopNRecommendations(Q, Qhat, 8, 5, products))
+	fmt.Println(GetTopNRecommendations(Q, Qhat, 8, 30, products))
 }
