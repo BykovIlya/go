@@ -3,12 +3,11 @@ package main
 import (
 	"os"
 	"fmt"
-	"math"
 	"bufio"
 	"strconv"
 )
 
-func main() {
+func main1() {
 	/* reading from file */
 	events := readingTransactionsFromFile()
 
@@ -60,14 +59,23 @@ func main() {
 			fmt.Println("Error: visitor doesn't found!")
 			os.Exit(-1)
 		}
-		prods, scores, err := GetRecommendations(prefs, /*getIndVisitor(visitors, myVisitor)*/ indexOfVisitor, products)
+		recommendations, err := GetRecommendations(prefs, /*getIndVisitor(visitors, myVisitor)*/ indexOfVisitor, products)
 		if err != nil {
 			fmt.Println("WHAT!?")
 		}
 		//fmt.Print(" Recommended Producs are: ")
-		realProds := make([]string,0)
-		cntOfProds := 0
-		for i := 0; i < len(prods); i++ {
+		//realProds := make([]string,0)
+		//cntOfProds := 0
+	if len(recommendations) > 0 {
+		fmt.Println("For user ", myVisitor, " recommended products are x with scores y (x --> y)")
+		for i := 0; i < len(recommendations); i++ {
+			fmt.Println(recommendations[i].product, "-->", recommendations[i].mpRating)
+		}
+	} else {
+		fmt.Println("There are no recommendations for user ", myVisitor)
+	}
+		fmt.Println()
+		/*for i := 0; i < len(prods); i++ {
 			if prods[i] != "" {
 				//fmt.Print(prods[i], " ")
 				realProds = append(realProds, prods[i])
@@ -81,12 +89,14 @@ func main() {
 				realScores = append(realScores, scores[i])
 				//fmt.Print(scores[i], " ")
 			}
-		}
+		}*/
+		/*
 		if cntOfProds > 0 {
 			fmt.Print("For user ", myVisitor)
 			fmt.Print(" Recommended Producs are: ", realProds, " with scores: ", realScores)
 			fmt.Println()
 		}
+		*/
 	//}
 	/*
 	   for bayesian filter
@@ -192,7 +202,13 @@ func main() {
 		}*/
 }
 
-func main1()  {
-	test1()
-	test2()
+func main()  {
+	//test1CF()
+	//test2CF()	products := make( []string, 0)
+	//	for i := 0; i < 100; i++ {
+	//		products = append(products, strconv.Itoa(i))
+	//	}
+	//test2ALS()
+	test4CF()
+	test4ALS()
 }

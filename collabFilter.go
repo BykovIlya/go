@@ -76,10 +76,10 @@ func replaceNA(prefs *DenseMatrix) *DenseMatrix {
 
 // Gets Recommendations for a user (row index) based on the prefs matrix.
 // Uses cosine similarity for rating scale, and jaccard similarity if binary
-func GetRecommendations(prefs *DenseMatrix, user int, products []string) ([]string, []float64, error) {
+func GetRecommendations(prefs *DenseMatrix, user int, products []string) ([] Recommendation, error) {
 	// make sure user is in the preference matrix
 	if user >= prefs.Rows() {
-		return nil, nil, errors.New("user index out of range")
+		return nil, errors.New("user index out of range")
 	}
 	//prefs = replaceNA(prefs)									// убираем неопределенности
 	// item ratings
@@ -111,8 +111,8 @@ func GetRecommendations(prefs *DenseMatrix, user int, products []string) ([]stri
 		}
 	}
 //	fmt.Println("Count of neighbors: ", cntOfNeighbor)
-	recs, vals := calculateWeightedMean(ratings, sims, products)
-	return recs, vals, nil
+	recommendations := calculateWeightedMean(ratings, sims, products)
+	return recommendations, nil
 }
 
 func sum(x []float64) float64 {
@@ -185,7 +185,7 @@ type Recommendation struct {
 	mpRating float64
 }
 
-func calculateWeightedMean(ratings, sims map[int]float64, products []string) (recommends []string, values []float64) {
+func calculateWeightedMean(ratings, sims map[int]float64, products []string) ([] Recommendation) {
 	//recommendations := make(map[float64]string, 0)
 	recommendations := make([] Recommendation, 0)
 	for k, v := range ratings {
@@ -203,17 +203,22 @@ func calculateWeightedMean(ratings, sims map[int]float64, products []string) (re
 			})
 		}*/
 	}
-	fmt.Println(len(recommendations))
-	recommends, values = sortMap(recommendations)
-	return
+	//fmt.Println(len(recommendations))
+	sort.Slice(recommendations, func (i, j int) bool { return recommendations[i].mpRating > recommendations[j].mpRating})
+	/*for i := 0; i < len(recommendations); i++ {
+		fmt.Println(recommendations[i].product, "-->", recommendations[i].mpRating)
+	}*/
+	return recommendations
 }
 
 func findRecByVal (recs [] Recommendation, val float64, prods [] string) {
 	for i := 0; i < len(recs); i++ {
 		if recs[i].mpRating == val {
+			//fmt.Print(i)
 			prods = append(prods, recs[i].product)
 		}
 	}
+	//fmt.Println(len(prods))
 }
 
 /*
@@ -232,6 +237,7 @@ func sortMap(recs map[float64]string) ([]string, []float64) {
 }
 */
 
+
 // Sorts a map of floats -> strings to get best recommendations. Probably a better way to do this.
 func sortMap(recs [] Recommendation) ([]string, []float64) {
 	vals := make([]float64, 0)
@@ -244,6 +250,8 @@ func sortMap(recs [] Recommendation) ([]string, []float64) {
 		//prods = append(prods, recs[val])
 		findRecByVal(recs, val, prods)
 	}
+	//fmt.Println(prods)
+	//fmt.Println(len(vals))
 	return prods, vals
 }
 
