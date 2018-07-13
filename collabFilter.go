@@ -47,6 +47,26 @@ func CosineSim(a, b []float64) float64 {
 	return dp / (a_squared * b_sqaured)
 }
 
+func multArray(a, b [] float64 ) float64 {
+	sumMult := 0.0
+	for i := 0; i < len(a); i++ {
+		sumMult += a[i] * b[i]
+	}
+	return sumMult
+}
+
+func sumSquare (a [] float64) float64 {
+	sum := 0.0
+	for i := 0; i < len(a); i++ {
+		sum += (a[i] * a[i])
+	}
+	return sum
+}
+func PearsonСorrelationСoefficient(a, b [] float64)  float64{
+	x := (float64(len(a)) * sumSquare(a) - (sum(a) * sum(a))) * (float64(len(a)) * sumSquare(b) - (sum(b) * sum(b)))
+	res := (float64(len(a)) * multArray(a,b) - sum(a) * sum(b)) / math.Sqrt(x)
+	return res
+}
 // defined as A n B / A u B. Used for binary user/product matrices.
 func Jaccard(a, b []float64) float64 {
 	intersection := float64(0)
@@ -93,7 +113,10 @@ func GetRecommendations(prefs *DenseMatrix, user int, products []string) ([] Rec
 		if i != user {
 			// get cosine similarity for other scores.
 			other := prefs.GetRowVector(i).Array()				// other - товары другого пользователя
-			cos_sim := CosineSim(user_ratings, other)			// косинусная мера м-ду векторами [0,1]
+			//cos_sim := CosineSim(user_ratings, other)			// косинусная мера м-ду векторами [0,1]
+
+			cos_sim := PearsonСorrelationСoefficient(user_ratings,other)
+
 			// get product recs for neighbors
 			if (cos_sim > 0) {
 				for idx, val := range other { // проходим по товарам

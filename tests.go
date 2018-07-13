@@ -206,7 +206,7 @@ func test3CF () {
 	for i := 0; i < 100; i++ {
 		products = append(products, strconv.Itoa(i))
 	}
-	prods, err := GetRecommendations(prefs, 8, products)
+	prods, err := GetRecommendations(prefs, 25, products)
 	if err != nil {
 		fmt.Println("WHAT!?")
 	}
@@ -340,7 +340,7 @@ func test3ALS () {
 	for i := 0; i < 100; i++ {
 		products = append(products, strconv.Itoa(i))
 	}
-	fmt.Println(GetTopNRecommendations(Q, Qhat, 8, 8, products))
+	fmt.Println(GetTopNRecommendations(Q, Qhat, 25, 8, products))
 }
 
 
@@ -369,8 +369,8 @@ func test4CF () {
 
 func test4ALS () {
 
-	n_factors := 5
-	n_iterations := 10
+	n_factors := 1
+	n_iterations := 1
 	lambda := 0.01
 	Q:= MakeRatingMatrix(generate(1000000),1000,1000)
 
@@ -393,4 +393,8 @@ func test4ALS () {
 		products = append(products, strconv.Itoa(i))
 	}
 	fmt.Println(GetTopNRecommendations(Q, Qhat, 8, 30, products))
+	//R := TrainImplicit(Q, 5, 10, 0.01)
+	//fmt.Println(GetTopNRecommendations(Q, R, 8, 30, products))
+
+
 }
